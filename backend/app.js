@@ -1,21 +1,17 @@
 import express from "express";
 import cors from "cors";
-import { config } from "dotenv"; // Import dotenv and call config
+import { config } from "dotenv";
 import { setupRoutes } from "./routes.js";
 import { Data, connectToDatabase } from "./db.js";
 import DataformatingforSheet from "./controllers/tripController.js";
-
 config();
-
 const app = express();
 app.use(express.json());
 const corsOptions = {
   origin: 'http://localhost:3000',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200 
 };
-
 app.use(cors(corsOptions));
-
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
