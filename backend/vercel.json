@@ -2,9 +2,9 @@
     "version": 2,
     "name":"e-shop-tutorial",
     "builds":[
-        {"src":"server.js","use":"@vercel/node"}
+        {"src":"app.js","use":"@vercel/node"}
     ],
     "routes":[
-        {"src":"/(.*)","dest":"/app.js"}
+        {"src":"/(.*)","dest":"/"}
     ]
 }
