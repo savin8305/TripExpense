@@ -162,9 +162,10 @@ const ButtonDialog = (props) => {
         }
       }
       if (props.row[2]) {
+        const country = globalCountryData.find((item) => item.name === props.row[1]);
         const state = globalStateData.find((item) => item.name === props.row[2]);
         if (state) {
-          await fetchCities(iso2Code, state.iso2);
+          await fetchCities(country.iso2, state.iso2);
         }
       }
     }
@@ -173,6 +174,13 @@ const ButtonDialog = (props) => {
 
   const handleClose = () => {
     setOpen(false);
+    // Reset the form fields on close
+    setSelectedCountry("");
+    setSelectedState("");
+    setSelectedCity("");
+    setClientName("");
+    setPurpose("");
+    setRemarks("");
   };
 
   const handleClearInput = () => {
@@ -199,12 +207,6 @@ const ButtonDialog = (props) => {
       props.day,
     ];
     props.settableData([...props.tableData, datadialog]);
-    setSelectedCountry("");
-    setSelectedState("");
-    setSelectedCity("");
-    setClientName("");
-    setPurpose("");
-    setRemarks("");
     handleClose();
   };
 
