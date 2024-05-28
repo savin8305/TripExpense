@@ -62,7 +62,6 @@ const BasicTable = (props) => {
 
   const submitTableData = async () => {
     if (editClickState) {
-      // If editing, update the existing data
       const updatedData = {
         Date: editDate,
         Day: editDay,
@@ -76,7 +75,6 @@ const BasicTable = (props) => {
       };
       await updateTableData(updatedData);
     } else {
-      // If not editing, submit new data
       try {
         const tripTableData = convertToObjects(props.saveDataParent);
         const { employeeID: employee, employeeName: employeename, type, dept: department, srno: sno } = props;
@@ -163,7 +161,7 @@ const BasicTable = (props) => {
 
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-      <div className="maintTripHomeTable" style={{ margin: "1rem", overflowY: "hidden", overflowX: "auto", width: "70%" }}>
+      <div className="maintTripHomeTable" style={{ margin: "1rem", overflowY: "hidden", overflowX: "auto", width: "100%" }}>
         <TableContainer component={Paper} style={{ maxHeight: "400px" }}>
           <Table aria-label="simple table" size="small">
             <TableHead style={{ backgroundColor: props.check ? "black" : "#F4F6F6 " }}>
@@ -177,7 +175,7 @@ const BasicTable = (props) => {
               {details.map((row, index) => (
                 !row.isDelete && (
                   <TableRow key={index} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-                    {[index + 1, row.Date, row.Day, row.Country, row.State, row.City, row.ClientName, row.Purpose, row.Remarks, row.isDelete.toString()].map((data, dataIndex) => (
+                    {[row.SRNumber, row.Date, row.Day, row.Country, row.State, row.City, row.ClientName, row.Purpose, row.Remarks, row.isDelete.toString()].map((data, dataIndex) => (
                       <TableCell key={dataIndex} align="left" style={{ border: '1px solid #ddd', padding: "4px", maxWidth: "100px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{data}</TableCell>
                     ))}
                     <TableCell align="left" style={{ border: '1px solid #ddd', padding: "4px" }}>

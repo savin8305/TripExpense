@@ -6,15 +6,10 @@ import TripModal from "./MainModal.js";
 import DatePicker from "react-multi-date-picker";
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";
-import { Grid,FormControl, useMediaQuery, InputLabel, MenuItem, Select, Popover, Checkbox, Button } from "@mui/material";
+import { Grid, Box, FormControl, useMediaQuery, InputLabel, MenuItem, Select, Popover, Checkbox, Button } from "@mui/material";
 import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
-const Empid = [
-  { title: "67890", name: "Gopal" },
-  { title: "98765", name: "Parvati" },
-  { title: "45678", name: "Shiva" },
-  { title: "87654", name: "Vishnu" },
-  { title: "23456", name: "Lakshmi" },
-];
+import axios from "axios";
+
 const SelectType = [
   { title: "Individual", name: 1994 },
   { title: "Group", name: 1972 },
@@ -33,19 +28,40 @@ const TripPage = (props) => {
   const [tableData, settableData] = useState([]);
   const [saveDataParent, setsaveDataParent] = useState();
   const [dates, setDates] = useState([]);
+  const [employeeOptions, setEmployeeOptions] = useState([]);
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/api/employee');
+        const employeeData = response.data;
+        const formattedEmployeeData = employeeData.map(emp => ({
+          title: emp.EmployeeId,
+          name: emp.EmployeeName
+        }));
+
+        const Empid = formattedEmployeeData[0].title.map((title, index) => ({
+          title,
+          name: formattedEmployeeData[0].name[index]
+        }));
+
+        setEmployeeOptions(Empid);
+        console.log("data from backend ", Empid);
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+      }
+    };
+    fetchEmployeeData();
+  }, []);
 
   const handleOpenAutoComplete = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
   const handleCloseAutoComplete = () => {
     setAnchorEl(null);
   };
-
   const handleAutocompleteChange = (event, value) => {
     setSelectedEmployeeIds(value);
   };
-
   useEffect(() => {
     console.log("Selected Employee IDs:", selectedEmployeeIds);
     if (selectedEmployeeIds.length === 1) {
@@ -82,10 +98,19 @@ const TripPage = (props) => {
       setOpen(true);
     }
   };
-
+  useEffect(() => {
+    const employeeIds = selectedEmployeeIds.map(employee => employee.title);
+    const employeeNames = selectedEmployeeIds.map(employee => employee.name);
+    console.log("employeeid triphome", employeeIds);
+    console.log("employeename triphome", employeeNames);
+    setEmployeeId(employeeIds.join(", "));
+    setEmployeeName(employeeNames.join(", "));
+    console.log("employeeid triphome2", employeeIds.join(", "));
+    console.log("employeename triphome2", employeeNames.join(", "));
+  }, [selectedEmployeeIds, employeeID, employeeName]);
   return (
     <div className="maintripcontainer">
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         <Grid item xs={6} sm={6} md={3} lg={3} xl={2}>
           <TextField
             sx={{
@@ -108,14 +133,18 @@ const TripPage = (props) => {
             label="Search by Employee Ids"
             onClick={handleOpenAutoComplete}
             value={selectedEmployeeIds.map((id) => `${id.title}-${id.name}`).join(", ")}
-            onChange={(e) =>
-              setSelectedEmployeeIds(
-                e.target.value.split(",").map((id) => {
+            onChange={(e) => {
+              const value = e.target.value;
+              if (!value) {
+                setSelectedEmployeeIds([]);
+              } else {
+                const ids = value.split(",").map((id) => {
                   const [title, name] = id.trim().split("-");
                   return { title, name };
-                })
-              )
-            }
+                }).filter((item) => item.title && item.name);
+                setSelectedEmployeeIds(ids);
+              }
+            }}
             className="firstAutoC"
           />
           <Popover
@@ -147,8 +176,8 @@ const TripPage = (props) => {
                 },
               }}
               fullWidth
-              options={Empid}
-              getOptionLabel={(option) => `${option.title}-${option.name}`}
+              options={employeeOptions}
+              getOptionLabel={(option) =>`${option.title}-${option.name}`}
               renderOption={(props, option, { selected }) => (
                 <li {...props}>
                   <Checkbox style={{ marginRight: 2 }} checked={selected} />
@@ -176,15 +205,6 @@ const TripPage = (props) => {
                     },
                   }}
                   placeholder="Search"
-                  value={selectedEmployeeIds.map((id) => `${id.title}-${id.name}`).join(", ")}
-                  onChange={(e) =>
-                    setSelectedEmployeeIds(
-                      e.target.value.split(",").map((id) => {
-                        const [title, name] = id.trim().split("-");
-                        return { title, name };
-                      })
-                    )
-                  }
                 />
               )}
               renderTags={(value, getTagProps) =>
@@ -195,7 +215,8 @@ const TripPage = (props) => {
             />
           </Popover>
         </Grid>
-        <Grid item xs={6} sm={6} md={3} lg={2} xl={2}>
+
+        <Grid className="thirdBox" item xs={6} sm={6} md={3} lg={2} xl={2}>
           <Autocomplete
             sx={{
               "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
@@ -214,9 +235,10 @@ const TripPage = (props) => {
             size="small"
             onChange={(event, value) => handleToLocation(value)}
             id="to-location"
-            className="secondAutoC"
+            freeSolo
             options={SelectType.map((option) => option.title)}
             value={type}
+            className="secondAutoC"
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -230,22 +252,18 @@ const TripPage = (props) => {
         </Grid>
         {dept === "Services" ? (
           <>
-            <Grid  item xs={3} sm={4} md={2} lg={2} xl={2}>
-              <FormControl
-              className="serviceFormC"
-                fullWidth
-                sx={{
-                  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: props.check ? "white" : "black",
-                  },
-                  "& .MuiInputBase-input": {
-                    color: props.check ? "white" : "black",
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: props.check ? "white" : "black",
-                  },
-                }}
-              >
+            <Grid item xs={3} sm={4} md={2} lg={2} xl={2}>
+              <FormControl sx={{
+                "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: props.check ? "white" : "black",
+                },
+                "& .MuiInputBase-input": {
+                  color: props.check ? "white" : "black",
+                },
+                "& .MuiInputLabel-root": {
+                  color: props.check ? "white" : "black",
+                },
+              }} fullWidth className="serviceFormC">
                 <InputLabel
                   size="small"
                   id="travel-class-label"
@@ -254,6 +272,7 @@ const TripPage = (props) => {
                   Select Dept.
                 </InputLabel>
                 <Select
+
                   size="small"
                   labelId="travel-class-label"
                   id="demo-simple-select"
@@ -269,7 +288,7 @@ const TripPage = (props) => {
             </Grid>
             <Grid item xs={3} sm={2} md={1} lg={1} xl={2}>
               <TextField
-              className="serviceForm2"
+                className="serviceForm2"
                 sx={{
                   "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
                     borderColor: props.check ? "white" : "black",
@@ -285,11 +304,12 @@ const TripPage = (props) => {
                   },
                 }}
                 size="small"
+                fullWidth
                 variant="outlined"
                 value={srnumber}
                 onChange={(e) => setsrnumber(e.target.value)}
                 placeholder="Sr"
-                style={{ width: '100%' }}
+                style={{ width: '90%' }}
               />
             </Grid>
           </>
@@ -333,13 +353,15 @@ const TripPage = (props) => {
             </Grid>
           </>
         )}
+
         <Grid item xs={6} sm={6} md={3} lg={3} xl={2}>
-          <div style={{ marginLeft: "8px", zIndex: 1000, width: "100%" }}>
+          <div style={{ marginLeft: "8px", zIndex: 1000, width: "170px" }}>
             <div
               className={dept === "Services" ? "whenService" : 'serviceDatePicker'}
               style={{
                 display: "flex",
                 alignItems: "center",
+                width: "75%",
                 padding: "0",
               }}
             >
@@ -380,7 +402,7 @@ const TripPage = (props) => {
               <EditNoteOutlinedIcon
                 onClick={handleOpen}
                 className={dept === "services" ? "" : "calendareditChild"}
-                style={{ fontSize: '40px', width: '45px', height: '40px', color: props.check ? "black" : "white",background: props.check ? "white" : "black" }}
+                style={{ fontSize: '30px', width: '34px', height: '30px', color: props.check ? "white" : "black", background:props.check ? "black" : "white"}}
               />
             </div>
           </div>
@@ -398,6 +420,7 @@ const TripPage = (props) => {
             setOpen={setOpen}
           />
         </Grid>
+
         <Grid item xs={12} sm={12}>
           <Table
             check={props.check}
@@ -408,6 +431,7 @@ const TripPage = (props) => {
             employeedata={employeedata}
             employeeID={employeeID}
             employeeName={employeeName}
+            selectedEmployeeIds={selectedEmployeeIds}
             type={type}
             dept={dept}
             srno={srnumber}
@@ -418,4 +442,5 @@ const TripPage = (props) => {
     </div>
   );
 };
+
 export default TripPage;

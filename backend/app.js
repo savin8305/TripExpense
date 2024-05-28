@@ -1,21 +1,19 @@
 import express from "express";
 import cors from "cors";
-import { config } from "dotenv";
+import { config } from "dotenv"; // Import dotenv and call config
 import { setupRoutes } from "./routes.js";
 import { Data, connectToDatabase } from "./db.js";
 import DataformatingforSheet from "./controllers/tripController.js";
+import mongoose from "mongoose";
 config();
+
 const app = express();
 app.use(express.json());
-const corsOptions = {
+app.use(cors({
   origin: 'http://localhost:3000',
-  optionsSuccessStatus: 200 
-};
-app.use(cors(corsOptions));
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-connectToDatabase()
+  credentials: true,
+  optionsSuccessStatus: 204, // 204 No Content is a common choice
+}));connectToDatabase()
 setupRoutes(app);
 console.log("process.env.MONGO_URI",process.env.MONGO_URI);
 console.log("SPREADSHEET_ID",process.env.SPREADSHEET_ID);
@@ -78,7 +76,56 @@ app.put("/update/:id", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+const EmployeeSchema = new mongoose.Schema({
+  PlanId: { type: String, required: true },
+  EmployeeId: { type: [String], required: true },
+  EmployeeName: { type: [String], required: true }
+});
 
+const Employee = mongoose.model('Employee', EmployeeSchema);
+
+const Empid = [
+  { title: "67890", name: "Gopal" },
+  { title: "98765", name: "Parvati" },
+  { title: "45678", name: "Shiva" },
+  { title: "87654", name: "Vishnu" },
+  { title: "23456", name: "Lakshmi" },
+];
+
+app.post('/api/employee', async (req, res) => {
+  try {
+    const PlanId = 'RCka'; 
+    const EmployeeId = Empid.map(emp => emp.title);
+    const EmployeeName = Empid.map(emp => emp.name);
+
+    const newEmployee = new Employee({
+      PlanId,
+      EmployeeId,
+      EmployeeName
+    });
+
+    await newEmployee.save();
+
+    res.status(201).json(newEmployee);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+app.get('/api/employee', async (req, res) => {
+  try {
+    const employees = await Employee.find({}, 'EmployeeId EmployeeName -_id');
+
+    if (!employees) {
+      return res.status(404).json({ message: 'No employees found' });
+    }
+
+    res.json(employees);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server is running at port ${PORT}`);

@@ -64,7 +64,7 @@
 }
 
 .calendareditChild {
-  margin-left: -2.4rem;
+  margin-left:0rem;
   margin-top:-2px;
   cursor: pointer;
   border-radius:4px;
@@ -331,7 +331,7 @@
   margin: 1rem !important;
   overflow: hidden;
   overflow-x: auto;
-  width: 60% !important;
+  width: 70% !important;
 }
 
 .calendaredit {
@@ -345,10 +345,10 @@
   border-radius: 0% !important;
 }
 .serviceFormC{
-  width:230px;
+  width:240px !important;
  }
  .serviceForm2{
-   
+   margin-left:28px !important;
  }
 
 .secondAutoC{
@@ -381,8 +381,9 @@
 
   .calendareditChild {
     margin-top:0px !important;
-    height:35px !important;
+    height:34px !important;
     border-radius:4px !important;
+    margin-left:1px !important;
     cursor: pointer;
   }
   
@@ -396,7 +397,7 @@
   }
 
   .serviceBig {
-    width: 165px !important;
+    width: 175px !important;
     margin-left: 10px !important;
   }
 
@@ -404,14 +405,11 @@
     width:150px !important;
     margin-left:0px;
   }
-
-
   .whenService {
     width: 150px !important;
     margin-left: -9.5px !important;
   }
-
-  .mainclass {
+ .mainclass {
     margin-top: 3rem;
     width: 98vw;
     height: 80px;
@@ -440,7 +438,7 @@
   .maintTripHomeTable {
     overflow: hidden;
     overflow-x: auto;
-    width: 95% !important;
+    width: 100% !important;
   }
 
   .datePickerAuto {
@@ -460,7 +458,7 @@
     margin-left:10px !important;
   }
   .serviceForm2{
-    margin-left:8px !important;
+    margin-left:18px !important;
   }
 }
 
@@ -482,6 +480,9 @@
    }
    .serviceForm2{
     margin-left:40px !important;
+   }
+   .maintTripHomeTable{
+    width:95% !important;
    }
 }
 
